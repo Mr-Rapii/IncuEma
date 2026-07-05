@@ -18,7 +18,7 @@ const firebaseConfig = {
 };
 // Passcode buat masuk ke admin.html (bukan security utama, cuma gerbang tampilan)
 // Keamanan asli ada di Firestore Rules (lihat firestore.rules) + Firebase Anonymous Auth
-const ADMIN_PASSCODE = "gantipasswordini";
+const ADMIN_PASSCODE = "rapiganteng";
 
 // Info channel TikTok yang ditampilkan di web & di card
 const TIKTOK_HANDLE = "@incu.ema33";
