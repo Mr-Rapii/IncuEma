@@ -14,7 +14,7 @@ const firebaseConfig = {
   projectId: "rapi-dev-43ddf",
   storageBucket: "rapi-dev-43ddf.firebasestorage.app",
   messagingSenderId: "392684134756",
-  appId: "1:392684134756:web:6ef9ed85f4fb29db29da71"
+  appId: "1:392684134756:web:1b61d395eda905f729da71"
 };
 
 // Passcode buat masuk ke admin.html (bukan security utama, cuma gerbang tampilan)
