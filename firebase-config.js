@@ -9,14 +9,13 @@
 // tapi collection-nya beda ("questions") jadi ga akan bentrok sama rapiTeamMembers.
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB674t6fiJ8HT9ENfeS3Vzv-BSGQTQ-3BI",
-  authDomain: "rapi-dev-43ddf.firebaseapp.com",
-  projectId: "rapi-dev-43ddf",
-  storageBucket: "rapi-dev-43ddf.firebasestorage.app",
-  messagingSenderId: "392684134756",
-  appId: "1:392684134756:web:1b61d395eda905f729da71"
+  apiKey: "AIzaSyBJJjcICAkbVWjrw5-zYMzcKqPGhS0nS0I",
+  authDomain: "piwstore.firebaseapp.com",
+  projectId: "piwstore",
+  storageBucket: "piwstore.firebasestorage.app",
+  messagingSenderId: "419258630997",
+  appId: "1:419258630997:web:aefc0e34cc4b7ca16d25dc"
 };
-
 // Passcode buat masuk ke admin.html (bukan security utama, cuma gerbang tampilan)
 // Keamanan asli ada di Firestore Rules (lihat firestore.rules) + Firebase Anonymous Auth
 const ADMIN_PASSCODE = "gantipasswordini";
