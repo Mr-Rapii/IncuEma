@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanya Incu Ema — Kirim Pertanyaan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#03030a;
+    --bg2:#0a0e14;
+    --cyan:#22d3ee;
+    --gold:#f5c451;
+    --card:rgba(255,255,255,0.04);
+    --border:rgba(255,255,255,0.08);
+    --text:#e6e8ec;
+    --muted:#8b93a1;
+  }
+  body.light{
+    --bg:#f3f5f9;
+    --bg2:#ffffff;
+    --card:rgba(0,0,0,0.035);
+    --border:rgba(0,0,0,0.09);
+    --text:#14161c;
+    --muted:#5b6472;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+    transition:background .3s ease, color .3s ease;
+  }
+  canvas#stars{
+    position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;
+  }
+  .wrap{
+    position:relative;z-index:1;
+    max-width:480px;margin:0 auto;
+    padding:28px 20px 60px;
+    min-height:100vh;
+  }
+  .brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;flex-wrap:wrap;animation:fadeDown .6s ease both;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulseDot 1.8s ease-in-out infinite;}
+  .brand span{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.5px;}
+  .brand-actions{display:flex;gap:6px;align-items:center;}
+  .icon-toggle{
+    width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.05);border:1px solid var(--border);cursor:pointer;font-size:14px;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .icon-toggle:active{transform:scale(0.9);}
+
+  .menu-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;animation:fadeDown .6s ease .05s both;}
+  .pill-link{
+    display:flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);
+    background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);
+    padding:7px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .pill-link:active{transform:scale(0.96);}
+  .pill-link:hover{background:rgba(34,211,238,0.14);}
+  .pill-link.gold{color:var(--gold);background:rgba(245,196,81,0.08);border-color:rgba(245,196,81,0.28);}
+  .pill-link.gold:hover{background:rgba(245,196,81,0.15);}
+
+  .presence-pill{
+    display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    color:var(--muted);background:rgba(255,255,255,0.03);border:1px solid var(--border);
+    padding:6px 10px;border-radius:20px;margin-bottom:16px;
+  }
+  .presence-pill .liveDot{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:pulseDot 1.6s ease-in-out infinite;}
+
+  .glass{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    padding:24px;
+    transition:background .3s ease, border-color .3s ease;
+  }
+
+  /* GATE / FOLLOW SCREEN */
+  .avatar{
+    width:88px;height:88px;border-radius:50%;
+    background:linear-gradient(135deg,var(--cyan),var(--gold));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:22px;color:#03030a;
+    margin-bottom:14px;
+    overflow:hidden;
+    border:2px solid rgba(34,211,238,0.4);
+    animation:avatarGlow 2.6s ease-in-out infinite, popIn .5s ease both;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .welcome-wave{display:inline-block;animation:wave 2s ease-in-out infinite;transform-origin:70% 70%;}
+  .handle{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:13px;margin-bottom:18px;display:block;}
+  p.desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;}
+
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px 18px;border-radius:14px;
+    border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+    font-weight:600;font-size:15px;transition:transform .15s ease, opacity .15s ease, box-shadow .25s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:linear-gradient(135deg,var(--cyan),#0ea5c4);color:#03030a;}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),#d99e2b);color:#03030a;box-shadow:0 0 0 rgba(245,196,81,.5);animation:goldPulse 2.4s ease-in-out infinite;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;animation:none;box-shadow:none;}
+  .btn + .btn{margin-top:10px;}
+  .btn-row{display:flex;gap:8px;}
+  .btn-row .btn{margin-top:0;}
+
+  .step{display:none;}
+  .step.active{display:block;animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) both;}
+
+  textarea, input[type=text], input[type=tel], input[type=number]{
+    width:100%;background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);border-radius:14px;
+    padding:14px;color:var(--text);font-family:'Space Grotesk',sans-serif;
+    font-size:15px;resize:vertical;min-height:110px;margin-bottom:12px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  input[type=text], input[type=tel], input[type=number]{min-height:auto;}
+  textarea:focus, input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,0.12);}
+  label.lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:8px;text-transform:uppercase;}
+
+  .stars{display:flex;gap:8px;justify-content:center;margin:18px 0 22px;}
+  .stars .star{font-size:34px;cursor:pointer;color:rgba(255,255,255,0.15);transition:color .15s, transform .25s cubic-bezier(.34,1.56,.64,1);display:inline-block;}
+  .stars .star.filled{color:var(--gold);text-shadow:0 0 12px rgba(245,196,81,.5);}
+  .stars .star.pop{animation:starPop .35s ease;}
+
+  .success-icon{
+    width:56px;height:56px;border-radius:50%;
+    background:rgba(34,211,238,0.12);border:1px solid var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;margin:0 auto 16px;color:var(--cyan);
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both, ringPulse 1.8s ease-in-out infinite;
+  }
+  .center{text-align:center;}
+
+  .foot{
+    text-align:center;margin-top:24px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);
+  }
+  .charcount{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:right;margin-top:-8px;margin-bottom:12px;}
+  .err{color:#f87171;font-size:12px;font-family:'JetBrains Mono',monospace;margin-bottom:10px;display:none;}
+  .hint{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;margin:-6px 0 12px;}
+
+  /* PROGRESS BAR */
+  .progress{display:flex;align-items:center;gap:6px;margin-bottom:20px;}
+  .progress .seg{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;}
+  .progress .seg i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--gold));transition:width .4s ease;}
+  .progress .seg.done i{width:100%;}
+  .progress .seg.current i{width:55%;}
+
+  /* CHIPS: mood & category */
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chip{
+    padding:8px 13px;border-radius:20px;border:1px solid var(--border);
+    font-size:13px;cursor:pointer;color:var(--muted);background:rgba(255,255,255,0.02);
+    transition:all .2s ease;user-select:none;
+  }
+  .chip.selected{background:rgba(34,211,238,0.14);border-color:var(--cyan);color:var(--cyan);}
+  .chip.selected.mood{background:rgba(245,196,81,0.14);border-color:var(--gold);color:var(--gold);}
+
+  /* MEDIA: photo & voice */
+  .media-row{display:flex;gap:8px;margin-bottom:12px;}
+  .media-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    padding:11px;border-radius:12px;border:1px dashed var(--border);
+    color:var(--muted);font-size:12.5px;cursor:pointer;background:rgba(255,255,255,0.02);
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .media-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .media-btn.recording{border-color:#f87171;color:#f87171;animation:pulseDot 1s infinite;}
+  #photoPreviewWrap, #voicePreviewWrap{display:none;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:8px 10px;}
+  #photoPreviewWrap img{width:44px;height:44px;object-fit:cover;border-radius:8px;}
+  .remove-x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:16px;}
+  .remove-x:hover{color:#f87171;}
+
+  /* CAPTCHA */
+  .captcha-box{
+    display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px;
+  }
+  .captcha-box span{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold);white-space:nowrap;}
+  .captcha-box input{margin:0;padding:8px;min-height:auto;width:70px;text-align:center;}
+  .captcha-refresh{cursor:pointer;color:var(--muted);font-size:14px;margin-left:auto;}
+  .captcha-refresh:hover{color:var(--cyan);}
+
+  .step{display:none;}
+  .step.active{display:block;}
+
+  /* BADGE / POINTS */
+  .badge-box{
+    display:flex;align-items:center;gap:10px;background:rgba(245,196,81,0.08);
+    border:1px solid rgba(245,196,81,0.25);border-radius:14px;padding:12px 14px;margin-bottom:16px;
+  }
+  .badge-box .bicon{font-size:22px;}
+  .badge-box .btext b{color:var(--gold);}
+  .badge-box .btext{font-size:12.5px;color:var(--muted);}
+
+  /* REFERRAL */
+  .ref-box{background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);border-radius:14px;padding:14px;margin:14px 0;}
+  .ref-box .reflink{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);word-break:break-all;margin:8px 0 12px;display:block;}
+
+  .foot{
+    text-align:center;margin-top:24px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);
+  }
+
+  @keyframes fadeSlideUp{
+    from{opacity:0;transform:translateY(18px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes fadeDown{
+    from{opacity:0;transform:translateY(-10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes pulseDot{
+    0%,100%{box-shadow:0 0 6px var(--cyan);opacity:1;}
+    50%{box-shadow:0 0 14px var(--cyan);opacity:.6;}
+  }
+  @keyframes avatarGlow{
+    0%,100%{box-shadow:0 0 0 rgba(34,211,238,0);}
+    50%{box-shadow:0 0 24px rgba(34,211,238,0.35);}
+  }
+  @keyframes popIn{
+    from{opacity:0;transform:scale(.7);}
+    to{opacity:1;transform:scale(1);}
+  }
+  @keyframes wave{
+    0%,100%{transform:rotate(0deg);}
+    20%{transform:rotate(14deg);}
+    40%{transform:rotate(-8deg);}
+    60%{transform:rotate(14deg);}
+    80%{transform:rotate(0deg);}
+  }
+  @keyframes goldPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(245,196,81,.35);}
+    50%{box-shadow:0 0 0 10px rgba(245,196,81,0);}
+  }
+  @keyframes starPop{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.4) rotate(-8deg);}
+    100%{transform:scale(1);}
+  }
+  @keyframes ringPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.25);}
+    50%{box-shadow:0 0 0 12px rgba(34,211,238,0);}
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+    100%{transform:translateY(340px) rotate(360deg);opacity:0;}
+  }
+  #step-thanks .glass{position:relative;overflow:hidden;}
+  .confetti{
+    position:absolute;top:0;left:50%;width:8px;height:8px;pointer-events:none;
+    animation:confettiFall 1.6s ease-in forwards;
+  }
+  @keyframes spinFeed{to{transform:rotate(360deg);}}
+
+  /* FEED */
+  .feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap;}
+  .back-btn{
+    display:flex;align-items:center;gap:6px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);
+    background:transparent;border:1px solid var(--border);border-radius:20px;padding:8px 14px;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .back-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  .feed-search{margin-bottom:12px;}
+  .feed-search input{margin-bottom:0;font-size:13px;padding:11px 14px;}
+
+  .feed-list{display:flex;flex-direction:column;gap:12px;}
+  .feed-card{
+    background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;
+    padding:16px;animation:fadeSlideUp .4s ease both;position:relative;
+  }
+  .feed-card .fmeta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .feed-card .fname{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);}
+  .feed-card .trending{font-size:10px;background:rgba(248,113,113,0.12);color:#f87171;padding:3px 8px;border-radius:10px;font-family:'JetBrains Mono',monospace;}
+  .feed-card .fq{font-size:14px;line-height:1.5;color:var(--text);margin-bottom:8px;}
+  .feed-card .fa{
+    font-size:13.5px;line-height:1.55;color:var(--muted);
+    background:rgba(34,211,238,0.06);border-left:2px solid var(--cyan);
+    padding:8px 12px;border-radius:0 10px 10px 0;cursor:pointer;
+  }
+  .feed-card .fa b{color:var(--cyan);font-style:normal;}
+  .feed-card .fa.collapsed{max-height:44px;overflow:hidden;position:relative;}
+  .feed-card .fa .more{display:block;color:var(--cyan);font-size:11px;margin-top:4px;}
+  .feed-card .frating{font-size:12px;color:var(--gold);margin-top:8px;font-family:'JetBrains Mono',monospace;}
+  .feed-card .factions{display:flex;align-items:center;gap:14px;margin-top:10px;}
+  .like-btn, .reply-toggle, .share-btn, .card-btn{
+    display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;
+    background:none;border:none;font-family:'Space Grotesk',sans-serif;transition:color .2s ease, transform .15s ease;
+  }
+  .like-btn:active, .reply-toggle:active, .share-btn:active, .card-btn:active{transform:scale(0.92);}
+  .like-btn.liked{color:#f87171;}
+  .reply-toggle:hover, .share-btn:hover, .card-btn:hover{color:var(--cyan);}
+  .reply-box{margin-top:10px;display:none;}
+  .reply-box.open{display:block;}
+  .reply-box textarea{min-height:60px;font-size:13px;padding:10px;}
+  .reply-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+  .reply-item{font-size:12.5px;background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;color:var(--muted);}
+  .feed-empty, .feed-loading{
+    text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;
+    font-size:12px;padding:40px 0;
+  }
+  .feed-loading .spin, .mini-spin{
+    display:inline-block;width:16px;height:16px;border:2px solid rgba(34,211,238,0.25);
+    border-top-color:var(--cyan);border-radius:50%;animation:spinFeed .7s linear infinite;
+    margin-bottom:10px;
+  }
+  .load-more{margin-top:14px;}
+
+  /* LEADERBOARD */
+  .lb-item{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border);}
+  .lb-item:last-child{border-bottom:none;}
+  .lb-rank{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold);width:22px;}
+  .lb-name{flex:1;font-size:14px;}
+  .lb-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);}
+
+  /* POLL */
+  .poll-opt{margin-bottom:10px;cursor:pointer;}
+  .poll-bar-wrap{background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;height:38px;position:relative;border:1px solid var(--border);}
+  .poll-bar-fill{height:100%;background:linear-gradient(90deg,rgba(34,211,238,0.35),rgba(245,196,81,0.35));width:0%;transition:width .5s ease;}
+  .poll-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:13px;}
+  .poll-bar-pct{font-family:'JetBrains Mono',monospace;color:var(--muted);}
+
+  /* MODAL QR */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:50;
+    backdrop-filter:blur(4px);
+  }
+  .modal-bg.show{display:flex;animation:fadeIn .25s ease both;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:300px;text-align:center;animation:popIn .3s ease both;}
+  .modal-card img{width:200px;height:200px;border-radius:12px;margin:14px 0;background:#fff;padding:8px;}
+
+  /* TOAST */
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:60;
+    background:var(--bg2);border:1px solid rgba(34,211,238,.4);color:var(--text);
+    padding:12px 18px;border-radius:14px;font-size:13px;max-width:90%;
+    box-shadow:0 12px 30px -8px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* MY QUESTIONS */
+  .myq-item{padding:12px;border-bottom:1px solid var(--border);}
+  .myq-item:last-child{border-bottom:none;}
+  .myq-q{font-size:13.5px;margin-bottom:4px;}
+  .myq-status{font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:10px;display:inline-block;}
+  .myq-status.pending{background:rgba(245,196,81,.12);color:var(--gold);}
+  .myq-status.answered{background:rgba(34,211,238,.12);color:var(--cyan);}
+
+  .offline-banner{
+    display:none;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;
+    font-size:12px;font-family:'JetBrains Mono',monospace;padding:10px 14px;border-radius:12px;margin-bottom:14px;text-align:center;
+  }
+  .offline-banner.show{display:block;}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+  <div class="brand-row">
+    <div class="brand"><div class="dot"></div><span>TANYA.INCUEMA — Q&A ANONIM</span></div>
+    <div class="brand-actions">
+      <div class="icon-toggle" id="btnTheme" title="Ganti tema">🌙</div>
+    </div>
+  </div>
+
+  <div class="presence-pill" id="presencePill"><span class="liveDot"></span> <span id="presenceCount">—</span> lagi di sini</div>
+
+  <div class="offline-banner" id="offlineBanner">📡 Kamu lagi offline. Draft pertanyaan otomatis tersimpan &amp; akan dikirim pas online lagi.</div>
+
+  <div class="menu-row">
+    <div class="pill-link" id="btnOpenFeed">🗂 Jawaban</div>
+    <div class="pill-link gold" id="btnOpenLeaderboard">🏆 Leaderboard</div>
+    <div class="pill-link" id="btnOpenPoll">📊 Polling</div>
+    <div class="pill-link gold" id="btnOpenMyQ">🔔 Punyaku</div>
+  </div>
+
+  <!-- STEP FEED -->
+  <div class="step" id="step-feed">
+    <div class="glass">
+      <div class="feed-header">
+        <h1 style="font-size:17px;">Jawaban Terbaru</h1>
+        <div class="back-btn" id="btnCloseFeed">← Kembali</div>
+      </div>
+      <div class="feed-search"><input type="text" id="feedSearch" placeholder="Cari kata kunci..."></div>
+      <div class="feed-list" id="feedList">
+        <div class="feed-loading"><div class="spin"></div><br>Memuat jawaban...</div>
+      </div>
+      <button class="btn btn-ghost load-more" id="btnLoadMoreFeed" style="display:none;">Muat lebih banyak</button>
+    </div>
+  </div>
+
+  <!-- STEP LEADERBOARD -->
+  <div class="step" id="step-leaderboard">
+    <div class="glass">
+      <div class="feed-header">
+        <h1 style="font-size:17px;">🏆 Leaderboard 7 Hari</h1>
+        <div class="back-btn" id="btnCloseLeaderboard">← Kembali</div>
+      </div>
+      <p class="desc" style="margin-bottom:10px;">Penanya paling aktif minggu ini.</p>
+      <div id="leaderboardList"><div class="feed-loading"><div class="spin"></div><br>Menghitung...</div></div>
+    </div>
+  </div>
+
+  <!-- STEP POLL -->
+  <div class="step" id="step-poll">
+    <div class="glass">
+      <div class="feed-header">
+        <h1 style="font-size:17px;">📊 Polling Hari Ini</h1>
+        <div class="back-btn" id="btnClosePoll">← Kembali</div>
+      </div>
+      <div id="pollBox"><div class="feed-loading"><div class="spin"></div><br>Memuat polling...</div></div>
+    </div>
+  </div>
+
+  <!-- STEP MY QUESTIONS -->
+  <div class="step" id="step-myq">
+    <div class="glass">
+      <div class="feed-header">
+        <h1 style="font-size:17px;">🔔 Pertanyaanku</h1>
+        <div class="back-btn" id="btnCloseMyQ">← Kembali</div>
+      </div>
+      <div id="myqList"><div class="feed-empty">Belum pernah kirim pertanyaan dari device ini.</div></div>
+    </div>
+  </div>
+
+  <!-- STEP 1: FOLLOW GATE -->
+  <div class="step active" id="step-follow">
+    <div class="glass">
+      <div class="avatar" id="avatarBox"><img src="avatar.jpg" alt="Incu Ema"></div>
+      <h1><span class="welcome-wave">👋</span> Selamat Datang di <span id="channelTitle">INCU EMA</span></h1>
+      <span class="handle" id="channelHandle">@incu.ema33</span>
+      <p class="desc">Mau nanya atau kasih komentar buat konten aku? Follow dulu ya di TikTok, terus baru bisa kirim pertanyaan 🙌</p>
+      <button class="btn btn-gold" id="btnFollow">▷ Follow di TikTok</button>
+      <button class="btn btn-primary" id="btnConfirmFollow" disabled>✓ Saya sudah follow, lanjut</button>
+    </div>
+  </div>
+
+  <!-- STEP 1.5: THANK YOU -->
+  <div class="step" id="step-thanks">
+    <div class="glass center">
+      <div class="success-icon">✓</div>
+      <h1>Makasih udah follow! 🎉</h1>
+      <p class="desc">Kamu sekarang bagian dari <span style="color:var(--cyan)" id="channelHandle3">@incu.ema33</span>. Yuk lanjut kirim pertanyaan atau komentar kamu 👇</p>
+      <button class="btn btn-primary" id="btnGoAsk">Lanjut ke Pertanyaan →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: ASK FORM -->
+  <div class="step" id="step-ask">
+    <div class="glass">
+      <div class="progress"><div class="seg current"><i></i></div><div class="seg"><i></i></div><div class="seg"><i></i></div></div>
+      <h1>Kirim Pertanyaan</h1>
+      <p class="desc">Tulis pertanyaan atau komentar kamu buat <span id="channelHandle2" style="color:var(--cyan)">@incu.ema33</span>. Ga perlu login, bebas anonim.</p>
+
+      <label class="lbl">Mood kamu sekarang</label>
+      <div class="chip-row" id="moodChips">
+        <div class="chip mood" data-mood="😊">😊 Senang</div>
+        <div class="chip mood" data-mood="🤔">🤔 Penasaran</div>
+        <div class="chip mood" data-mood="😢">😢 Sedih</div>
+        <div class="chip mood" data-mood="😍">😍 Baper</div>
+        <div class="chip mood" data-mood="😡">😡 Kesel</div>
+      </div>
+
+      <label class="lbl">Kategori</label>
+      <div class="chip-row" id="categoryChips">
+        <div class="chip" data-cat="Request Konten">🎬 Request Konten</div>
+        <div class="chip" data-cat="Curhat">💬 Curhat</div>
+        <div class="chip" data-cat="Fun Fact">✨ Fun Fact</div>
+        <div class="chip" data-cat="Lainnya">📌 Lainnya</div>
+      </div>
+
+      <label class="lbl">Nama (opsional)</label>
+      <input type="text" id="askerName" placeholder="Anonim" maxlength="30">
+
+      <label class="lbl">No. WhatsApp (opsional)</label>
+      <input type="tel" id="askerPhone" placeholder="08xxxxxxxxxx">
+      <div class="hint">Cuma buat dihubungi kalau pertanyaanmu kepilih dijawab langsung.</div>
+
+      <label class="lbl">Pertanyaan / Komentar</label>
+      <textarea id="questionText" placeholder="Contoh: kak konten ke braga seru banget, request lagi dong!" maxlength="300"></textarea>
+      <div class="charcount"><span id="charCount">0</span>/300</div>
+
+      <div class="media-row">
+        <label class="media-btn" id="photoBtnLabel">📷 Tambah Foto<input type="file" accept="image/*" id="photoInput" style="display:none;"></label>
+        <div class="media-btn" id="voiceBtn">🎙 Rekam Suara</div>
+      </div>
+      <div id="photoPreviewWrap"><img id="photoPreviewImg"><span>Foto siap dikirim</span><span class="remove-x" id="btnRemovePhoto">✕</span></div>
+      <div id="voicePreviewWrap"><span id="voiceDuration">🎧 Voice note siap</span><span class="remove-x" id="btnRemoveVoice">✕</span></div>
+      <div id="voiceStatus" class="hint" style="display:none;"></div>
+
+      <div class="captcha-box">
+        <span id="captchaQ">3 + 4 = ?</span>
+        <input type="number" id="captchaInput" placeholder="?">
+        <span class="captcha-refresh" id="btnRefreshCaptcha">↻</span>
+      </div>
+
+      <div class="err" id="askErr">Pertanyaan ga boleh kosong ya.</div>
+      <button class="btn btn-primary" id="btnSubmitQuestion">Kirim Pertanyaan →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: RATING -->
+  <div class="step" id="step-rating">
+    <div class="glass center">
+      <div class="progress"><div class="seg done"><i></i></div><div class="seg current"><i></i></div><div class="seg"><i></i></div></div>
+      <h1>Rating Konten</h1>
+      <p class="desc">Sebelum selesai, kasih rating buat konten <span style="color:var(--gold)">@incu.ema33</span> dong, biar makin semangat bikin konten 🔥</p>
+      <div class="stars" id="starPicker">
+        <span class="star" data-v="1">★</span>
+        <span class="star" data-v="2">★</span>
+        <span class="star" data-v="3">★</span>
+        <span class="star" data-v="4">★</span>
+        <span class="star" data-v="5">★</span>
+      </div>
+      <button class="btn btn-gold" id="btnSubmitRating" disabled>Kirim Rating & Selesai</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: DONE -->
+  <div class="step" id="step-done">
+    <div class="glass center">
+      <div class="progress"><div class="seg done"><i></i></div><div class="seg done"><i></i></div><div class="seg current"><i></i></div></div>
+      <div class="success-icon">✓</div>
+      <h1>Terkirim!</h1>
+      <p class="desc">Pertanyaan & rating kamu udah masuk. Pantengin story/status TikTok & WA <span style="color:var(--cyan)">@incu.ema33</span> ya, siapa tau pertanyaan kamu dijawab 👀</p>
+
+      <div class="badge-box">
+        <div class="bicon">🏅</div>
+        <div class="btext"><b id="badgeTier">Pemula</b><br><span id="badgePoints">0 poin</span></div>
+      </div>
+
+      <div class="ref-box">
+        <div style="font-size:13px;">Ajak temenmu ikutan nanya 👇</div>
+        <span class="reflink" id="referralLink"></span>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btnCopyRef">📋 Copy Link</button>
+          <button class="btn btn-ghost" id="btnShareRef">💬 WA</button>
+        </div>
+      </div>
+
+      <button class="btn btn-ghost" id="btnShowQR">📱 Tampilkan QR</button>
+      <button class="btn btn-ghost" id="btnAskAgain">Kirim pertanyaan lagi</button>
+    </div>
+  </div>
+
+  <div class="foot">by rapidev.my.id</div>
+</div>
+
+<!-- MODAL QR -->
+<div class="modal-bg" id="qrModalBg">
+  <div class="modal-card">
+    <h1 style="font-size:16px;">Scan buat ikutan nanya</h1>
+    <img id="qrImage" src="" alt="QR Code">
+    <button class="btn btn-ghost" id="btnCloseQr">Tutup</button>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  // Catatan: foto & voice note TIDAK pakai Firebase Storage (sejak Feb 2026 wajib plan Blaze).
+  // Media dikompres kecil lalu disimpan langsung sebagai base64 di field dokumen Firestore, tetap gratis di plan Spark.
+
+  document.getElementById('channelTitle').textContent = CHANNEL_NAME;
+  document.getElementById('channelHandle').textContent = TIKTOK_HANDLE;
+  document.getElementById('channelHandle2').textContent = TIKTOK_HANDLE;
+  document.getElementById('channelHandle3').textContent = TIKTOK_HANDLE;
+
+  function escapeHtml(s){ const div=document.createElement('div'); div.textContent = s||''; return div.innerHTML; }
+  function showToast(msg, ms){
+    const t = document.getElementById('toastBox');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=> t.classList.remove('show'), ms||2600);
+  }
+
+  /* ===================== 25. SOUND EFFECTS (Web Audio API, beda tiap jenis tombol) ===================== */
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function tone(freq, type, dur, vol, delay){
+    const now = audioCtx.currentTime + (delay||0);
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = type; o.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(vol, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    o.start(now); o.stop(now + dur + 0.03);
+  }
+  function playSound(kind){
+    try{
+      ensureAudio();
+      switch(kind){
+        case 'gold': tone(520,'triangle',0.12,0.09); break;
+        case 'primary': tone(660,'sine',0.09,0.08); break;
+        case 'ghost': tone(320,'sine',0.06,0.05); break;
+        case 'star': tone(720,'square',0.07,0.05); break;
+        case 'like': tone(1000,'sine',0.05,0.06); break;
+        case 'open': tone(440,'sine',0.1,0.06); tone(660,'sine',0.08,0.05,0.05); break;
+        case 'close': tone(300,'sine',0.08,0.05); break;
+        case 'error': tone(160,'sawtooth',0.22,0.07); break;
+        case 'success':
+          tone(660,'sine',0.15,0.08,0); tone(800,'sine',0.15,0.08,0.09); tone(1000,'sine',0.18,0.08,0.18);
+          break;
+        case 'chip': tone(500,'square',0.05,0.04); break;
+        default: tone(800,'square',0.03,0.04);
+      }
+    }catch(e){ /* audio tidak tersedia, abaikan */ }
+  }
+  document.addEventListener('click', (e)=>{
+    const el = e.target.closest('.btn,.pill-link,.back-btn,.chip,.like-btn,.reply-toggle,.share-btn,.card-btn,.star,.icon-toggle,.captcha-refresh,.media-btn,.remove-x');
+    if(!el) return;
+    if(el.classList.contains('btn-gold')) return playSound('gold');
+    if(el.classList.contains('btn-primary')) return playSound('primary');
+    if(el.classList.contains('btn-ghost')) return playSound('ghost');
+    if(el.classList.contains('star')) return playSound('star');
+    if(el.classList.contains('like-btn')) return playSound('like');
+    if(el.classList.contains('chip')) return playSound('chip');
+    if(el.classList.contains('pill-link')) return playSound('open');
+    if(el.classList.contains('back-btn')) return playSound('close');
+    playSound('tick');
+  }, true);
+
+  /* ===================== 8 & 27. TEMA DARK/LIGHT (manual + auto by jam) ===================== */
+  const themeBtn = document.getElementById('btnTheme');
+  function applyTheme(mode){
+    document.body.classList.toggle('light', mode === 'light');
+    themeBtn.textContent = mode === 'light' ? '☀️' : '🌙';
+  }
+  (function initTheme(){
+    const saved = localStorage.getItem('themePref');
+    if(saved){ applyTheme(saved); }
+    else{
+      const hour = new Date().getHours();
+      applyTheme((hour >= 6 && hour < 18) ? 'light' : 'dark');
+    }
+  })();
+  themeBtn.addEventListener('click', ()=>{
+    const next = document.body.classList.contains('light') ? 'dark' : 'light';
+    applyTheme(next); localStorage.setItem('themePref', next);
+  });
+
+  /* ===================== NAVIGASI STEP ===================== */
+  let lastStepBeforeOverlay = 'step-follow';
+  function goTo(stepId){
+    const active = document.querySelector('.step.active');
+    if(active && !['step-feed','step-leaderboard','step-poll','step-myq'].includes(active.id)){
+      lastStepBeforeOverlay = active.id;
+    }
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById(stepId).classList.add('active');
+  }
+
+  document.getElementById('btnFollow').addEventListener('click', ()=>{
+    window.open(TIKTOK_URL, '_blank');
+    document.getElementById('btnConfirmFollow').disabled = false;
+  });
+  document.getElementById('btnConfirmFollow').addEventListener('click', ()=>{ goTo('step-thanks'); burstConfetti(3); });
+  document.getElementById('btnGoAsk').addEventListener('click', ()=> goTo('step-ask'));
+
+  document.getElementById('btnOpenFeed').addEventListener('click', ()=>{ goTo('step-feed'); loadFeed(); });
+  document.getElementById('btnCloseFeed').addEventListener('click', ()=> goTo(lastStepBeforeOverlay));
+  document.getElementById('btnOpenLeaderboard').addEventListener('click', ()=>{ goTo('step-leaderboard'); loadLeaderboard(); });
+  document.getElementById('btnCloseLeaderboard').addEventListener('click', ()=> goTo(lastStepBeforeOverlay));
+  document.getElementById('btnOpenPoll').addEventListener('click', ()=>{ goTo('step-poll'); loadPoll(); });
+  document.getElementById('btnClosePoll').addEventListener('click', ()=> goTo(lastStepBeforeOverlay));
+  document.getElementById('btnOpenMyQ').addEventListener('click', ()=>{ goTo('step-myq'); renderMyQuestions(); });
+  document.getElementById('btnCloseMyQ').addEventListener('click', ()=> goTo(lastStepBeforeOverlay));
+
+  /* ===================== 5. CONFETTI BEDA-BEDA PER RATING ===================== */
+  function burstConfetti(intensity){
+    const colorsSets = {
+      1:['#8b93a1'], 2:['#8b93a1','#22d3ee'], 3:['#22d3ee','#e6e8ec'],
+      4:['#22d3ee','#f5c451'], 5:['#f5c451','#22d3ee','#e6e8ec']
+    };
+    const colors = colorsSets[intensity] || colorsSets[3];
+    const count = 14 + intensity*6;
+    const host = document.querySelector('.step.active .glass');
+    for(let i=0;i<count;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.background = colors[i % colors.length];
+      c.style.left = (10 + Math.random()*80) + '%';
+      c.style.animationDelay = (Math.random()*0.3) + 's';
+      c.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+      host.appendChild(c);
+      setTimeout(()=> c.remove(), 2000);
+    }
+  }
+
+  /* ===================== 7 & 12. MOOD & KATEGORI CHIPS ===================== */
+  let selectedMood = null, selectedCategory = null;
+  document.querySelectorAll('#moodChips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#moodChips .chip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected'); selectedMood = chip.dataset.mood;
+    });
+  });
+  document.querySelectorAll('#categoryChips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('#categoryChips .chip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected'); selectedCategory = chip.dataset.cat;
+    });
+  });
+
+  /* ===================== 6. SIMPAN NAMA DI LOCALSTORAGE ===================== */
+  const askerNameEl = document.getElementById('askerName');
+  askerNameEl.value = localStorage.getItem('savedName') || '';
+
+  /* ===================== 30. DRAFT OFFLINE ===================== */
+  const qText = document.getElementById('questionText');
+  const DRAFT_KEY = 'draftQuestion';
+  qText.value = localStorage.getItem(DRAFT_KEY) || '';
+  document.getElementById('charCount').textContent = qText.value.length;
+  qText.addEventListener('input', ()=>{
+    document.getElementById('charCount').textContent = qText.value.length;
+    localStorage.setItem(DRAFT_KEY, qText.value);
+  });
+  function updateOnlineBanner(){
+    document.getElementById('offlineBanner').classList.toggle('show', !navigator.onLine);
+  }
+  window.addEventListener('online', ()=>{ updateOnlineBanner(); flushPendingSubmit(); showToast('✅ Online lagi! Mengirim draft tertunda...'); });
+  window.addEventListener('offline', updateOnlineBanner);
+  updateOnlineBanner();
+
+  function flushPendingSubmit(){
+    const pending = JSON.parse(localStorage.getItem('pendingSubmit')||'null');
+    if(pending){ localStorage.removeItem('pendingSubmit'); submitQuestionPayload(pending, true); }
+  }
+
+  /* ===================== 12/10/11. FOTO & VOICE NOTE (disimpan sebagai base64 di Firestore, TANPA Storage) ===================== */
+  let photoBase64 = null, audioBase64 = null, mediaRecorder = null, recordedChunks = [], recordSeconds = 0, recordTimer = null;
+  const MAX_PHOTO_W = 480, PHOTO_QUALITY = 0.6;
+  const MAX_RECORD_SECONDS = 15; // dijaga pendek biar ukuran base64 aman buat disimpan di Firestore (limit 1MB/dokumen)
+  const MAX_MEDIA_BASE64_CHARS = 600000; // ~450KB data asli, aman jauh di bawah limit 1MB per dokumen
+
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = ()=>{ img.src = reader.result; };
+      reader.onerror = reject;
+      img.onload = ()=>{
+        const scale = Math.min(1, MAX_PHOTO_W / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale; canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', PHOTO_QUALITY));
+      };
+      img.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('photoInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    if(!file.type.startsWith('image/')){ showToast('File harus berupa gambar.'); return; }
+    try{
+      const dataUrl = await compressImage(file);
+      if(dataUrl.length > MAX_MEDIA_BASE64_CHARS){
+        showToast('Foto masih kegedean setelah dikompres, coba foto lain ya.');
+        return;
+      }
+      photoBase64 = dataUrl;
+      document.getElementById('photoPreviewImg').src = dataUrl;
+      document.getElementById('photoPreviewWrap').style.display = 'flex';
+    }catch(err){ showToast('Gagal memproses foto.'); }
+  });
+  document.getElementById('btnRemovePhoto').addEventListener('click', ()=>{
+    photoBase64 = null; document.getElementById('photoInput').value='';
+    document.getElementById('photoPreviewWrap').style.display = 'none';
+  });
+
+  document.getElementById('voiceBtn').addEventListener('click', async ()=>{
+    const btn = document.getElementById('voiceBtn');
+    if(mediaRecorder && mediaRecorder.state === 'recording'){ mediaRecorder.stop(); return; }
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      recordedChunks = []; recordSeconds = 0;
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = ()=>{
+        clearInterval(recordTimer);
+        btn.classList.remove('recording'); btn.textContent = '🎙 Rekam Suara';
+        const blob = new Blob(recordedChunks, {type:'audio/webm'});
+        stream.getTracks().forEach(t=>t.stop());
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          if(reader.result.length > MAX_MEDIA_BASE64_CHARS){
+            showToast('Voice note kegedean, coba rekam lebih pendek ya.');
+            audioBase64 = null;
+            document.getElementById('voicePreviewWrap').style.display = 'none';
+            return;
+          }
+          audioBase64 = reader.result;
+          document.getElementById('voiceDuration').textContent = `🎧 Voice note (${recordSeconds}s) siap`;
+          document.getElementById('voicePreviewWrap').style.display = 'flex';
+        };
+        reader.readAsDataURL(blob);
+        document.getElementById('voiceStatus').style.display = 'none';
+      };
+      mediaRecorder.start();
+      btn.classList.add('recording'); btn.textContent = '⏹ Stop Rekam';
+      document.getElementById('voiceStatus').style.display = 'block';
+      recordTimer = setInterval(()=>{
+        recordSeconds++;
+        document.getElementById('voiceStatus').textContent = `Merekam... ${recordSeconds}s (maks ${MAX_RECORD_SECONDS}s)`;
+        if(recordSeconds >= MAX_RECORD_SECONDS) mediaRecorder.stop();
+      }, 1000);
+    }catch(e){ showToast('Gagal akses mic: '+e.message); }
+  });
+  document.getElementById('btnRemoveVoice').addEventListener('click', ()=>{
+    audioBase64 = null; document.getElementById('voicePreviewWrap').style.display = 'none';
+  });
+
+  /* ===================== 21. CAPTCHA MATEMATIKA ===================== */
+  let captchaAnswer = 0;
+  function genCaptcha(){
+    const a = Math.floor(Math.random()*9)+1, b = Math.floor(Math.random()*9)+1;
+    captchaAnswer = a + b;
+    document.getElementById('captchaQ').textContent = `${a} + ${b} = ?`;
+    document.getElementById('captchaInput').value = '';
+  }
+  genCaptcha();
+  document.getElementById('btnRefreshCaptcha').addEventListener('click', genCaptcha);
+
+  /* ===================== 20. FILTER KATA KASAR ===================== */
+  const badWords = ['anjing','bangsat','kontol','memek','goblok','tolol','bego','asu','kampret','bajingan'];
+  function containsBadWord(text){
+    const low = text.toLowerCase();
+    return badWords.some(w => low.includes(w));
+  }
+
+  /* ===================== 17 & 18. REFERRAL & QR ===================== */
+  function buildReferralLink(){
+    const base = location.origin + location.pathname;
+    const ref = (localStorage.getItem('savedName') || 'anon').trim() || 'anon';
+    return base + '?ref=' + encodeURIComponent(ref);
+  }
+  const urlParams = new URLSearchParams(location.search);
+  const referredBy = urlParams.get('ref');
+
+  document.getElementById('btnCopyRef').addEventListener('click', ()=>{
+    navigator.clipboard.writeText(document.getElementById('referralLink').textContent)
+      .then(()=> showToast('🔗 Link disalin!'))
+      .catch(()=> showToast('Gagal menyalin link.'));
+  });
+  document.getElementById('btnShareRef').addEventListener('click', ()=>{
+    const link = document.getElementById('referralLink').textContent;
+    const text = encodeURIComponent(`Yuk kirim pertanyaan buat ${TIKTOK_HANDLE} di sini: ${link}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  });
+  document.getElementById('btnShowQR').addEventListener('click', ()=>{
+    const link = encodeURIComponent(location.origin + location.pathname);
+    document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${link}`;
+    document.getElementById('qrModalBg').classList.add('show');
+  });
+  document.getElementById('btnCloseQr').addEventListener('click', ()=>{
+    document.getElementById('qrModalBg').classList.remove('show');
+  });
+
+  /* ===================== 2. POIN / BADGE ===================== */
+  function getPoints(){ return parseInt(localStorage.getItem('poinku')||'0'); }
+  function addPoint(){ const p = getPoints()+1; localStorage.setItem('poinku', p); return p; }
+  function tierFor(points){
+    if(points >= 10) return 'Superfan 🔥';
+    if(points >= 5) return 'Aktif ⚡';
+    if(points >= 1) return 'Pemula 🌱';
+    return 'Baru Gabung';
+  }
+  function renderBadge(){
+    const p = getPoints();
+    document.getElementById('badgeTier').textContent = tierFor(p);
+    document.getElementById('badgePoints').textContent = p + ' poin';
+  }
+
+  /* ===================== 19. RATE LIMIT PER DEVICE ===================== */
+  const COOLDOWN_MS = 45000;
+  function remainingCooldown(){
+    const last = parseInt(localStorage.getItem('lastSubmitAt')||'0');
+    const diff = Date.now() - last;
+    return diff < COOLDOWN_MS ? Math.ceil((COOLDOWN_MS-diff)/1000) : 0;
+  }
+
+  /* ===================== SUBMIT PERTANYAAN ===================== */
+  let currentDocId = null;
+
+  async function submitQuestionPayload(payload, isRetry){
+    const btn = document.getElementById('btnSubmitQuestion');
+    if(btn){ btn.disabled = true; btn.textContent = 'Mengirim...'; }
+    try{
+      const docRef = await db.collection('questions').add({
+        question: payload.question, askerName: payload.askerName,
+        phone: payload.phone || null,
+        mood: payload.mood || null, category: payload.category || null,
+        photo: payload.photoBase64 || null, audio: payload.audioBase64 || null,
+        referredBy: payload.referredBy || null,
+        answer: null, status: 'pending', rating: null, likes: 0,
+        channelHandle: TIKTOK_HANDLE,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      currentDocId = docRef.id;
+      saveMyQuestion(docRef.id, payload.question);
+      localStorage.setItem('lastSubmitAt', Date.now());
+      localStorage.removeItem(DRAFT_KEY);
+      const pts = addPoint(); renderBadge();
+      document.getElementById('referralLink').textContent = buildReferralLink();
+      playSound('success');
+      goTo('step-rating');
+    }catch(e){
+      playSound('error');
+      if(!navigator.onLine){
+        localStorage.setItem('pendingSubmit', JSON.stringify(payload));
+        showToast('📡 Offline — draft disimpan, otomatis kirim nanti.');
+        goTo('step-rating');
+      }else{
+        alert('Gagal kirim pertanyaan, coba lagi: '+e.message);
+      }
+    }finally{
+      if(btn){ btn.disabled=false; btn.textContent='Kirim Pertanyaan →'; }
+    }
+  }
+
+  document.getElementById('btnSubmitQuestion').addEventListener('click', async ()=>{
+    const question = qText.value.trim();
+    const name = askerNameEl.value.trim() || 'Anonim';
+    const phone = document.getElementById('askerPhone').value.trim();
+    const errEl = document.getElementById('askErr');
+
+    if(!question){ errEl.textContent='Pertanyaan ga boleh kosong ya.'; errEl.style.display='block'; playSound('error'); return; }
+    if(containsBadWord(question)){ errEl.textContent='Pertanyaan mengandung kata yang kurang pantas, tolong diperhalus ya 🙏'; errEl.style.display='block'; playSound('error'); return; }
+    if(phone && !/^0[0-9]{8,14}$/.test(phone)){ errEl.textContent='Format nomor WA kurang tepat (contoh: 08123456789).'; errEl.style.display='block'; playSound('error'); return; }
+    if(parseInt(document.getElementById('captchaInput').value||'-1') !== captchaAnswer){ errEl.textContent='Jawaban captcha salah, coba lagi ya.'; errEl.style.display='block'; playSound('error'); genCaptcha(); return; }
+    const cooldown = remainingCooldown();
+    if(cooldown > 0){ errEl.textContent = `Tunggu ${cooldown} detik lagi sebelum kirim pertanyaan baru ya.`; errEl.style.display='block'; playSound('error'); return; }
+    errEl.style.display='none';
+
+    localStorage.setItem('savedName', name);
+
+    const payload = { question, askerName:name, phone, mood:selectedMood, category:selectedCategory, referredBy, photoBase64, audioBase64 };
+    submitQuestionPayload(payload, false);
+  });
+
+  /* ===================== RATING (dengan confetti berbeda) ===================== */
+  let selectedRating = 0;
+  document.querySelectorAll('#starPicker .star').forEach(star=>{
+    star.addEventListener('click', ()=>{
+      selectedRating = parseInt(star.dataset.v);
+      document.querySelectorAll('#starPicker .star').forEach(s=>{
+        s.classList.toggle('filled', parseInt(s.dataset.v) <= selectedRating);
+        if(parseInt(s.dataset.v) <= selectedRating){ s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); }
+      });
+      document.getElementById('btnSubmitRating').disabled = false;
+    });
+  });
+
+  document.getElementById('btnSubmitRating').addEventListener('click', async ()=>{
+    const btn = document.getElementById('btnSubmitRating');
+    btn.disabled = true; btn.textContent='Mengirim...';
+    try{
+      if(currentDocId){ await db.collection('questions').doc(currentDocId).update({ rating: selectedRating }); }
+      renderBadge();
+      document.getElementById('referralLink').textContent = buildReferralLink();
+      goTo('step-done');
+      burstConfetti(selectedRating || 3);
+      playSound('success');
+    }catch(e){
+      playSound('error');
+      alert('Gagal kirim rating: '+e.message);
+    }finally{
+      btn.textContent='Kirim Rating & Selesai';
+    }
+  });
+
+  document.getElementById('btnAskAgain').addEventListener('click', ()=>{
+    qText.value=''; document.getElementById('charCount').textContent='0'; localStorage.removeItem(DRAFT_KEY);
+    selectedRating=0; currentDocId=null; photoBase64=null; audioBase64=null; selectedMood=null; selectedCategory=null;
+    document.getElementById('photoPreviewWrap').style.display='none';
+    document.getElementById('voicePreviewWrap').style.display='none';
+    document.querySelectorAll('#starPicker .star').forEach(s=>s.classList.remove('filled'));
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('btnSubmitRating').disabled = true;
+    genCaptcha();
+    goTo('step-ask');
+  });
+
+  /* ===================== 9 & 24. NOTIF PERTANYAAN DIJAWAB ===================== */
+  function getMyQuestions(){ return JSON.parse(localStorage.getItem('myQuestions')||'[]'); }
+  function saveMyQuestion(id, question){
+    const list = getMyQuestions();
+    list.unshift({id, question, notified:false});
+    localStorage.setItem('myQuestions', JSON.stringify(list.slice(0,15)));
+  }
+
+  // Query batched: cocok sama security rules (baca publik cuma diizinkan kalau status=='answered'
+  // DAN query-nya sendiri sudah difilter status=='answered', jadi Firestore bisa validasi tanpa baca dokumen pending).
+  async function fetchAnsweredAmong(ids){
+    const result = {};
+    if(!ids.length) return result;
+    for(let i=0;i<ids.length;i+=10){
+      const chunk = ids.slice(i,i+10);
+      try{
+        const snap = await db.collection('questions')
+          .where('status','==','answered')
+          .where(firebase.firestore.FieldPath.documentId(),'in', chunk)
+          .get();
+        snap.forEach(doc=> result[doc.id] = doc.data());
+      }catch(e){ console.warn('Gagal cek status batch:', e.message); }
+    }
+    return result;
+  }
+
+  async function checkAnsweredNotifications(){
+    const list = getMyQuestions();
+    const pendingIds = list.filter(item=>!item.notified).map(item=>item.id);
+    if(!pendingIds.length) return;
+    const answeredMap = await fetchAnsweredAmong(pendingIds);
+    let changed = false;
+    list.forEach(item=>{
+      if(!item.notified && answeredMap[item.id]){
+        item.notified = true; changed = true;
+        showToast(`🎉 Pertanyaanmu "${item.question.slice(0,40)}..." udah dijawab!`, 4000);
+        if(window.Notification && Notification.permission === 'granted'){
+          new Notification('Pertanyaanmu dijawab! 🎉', { body: item.question.slice(0,80) });
+        }
+      }
+    });
+    if(changed) localStorage.setItem('myQuestions', JSON.stringify(list));
+  }
+  if(window.Notification && Notification.permission === 'default'){
+    document.addEventListener('click', function reqPerm(){
+      Notification.requestPermission(); document.removeEventListener('click', reqPerm);
+    }, {once:true});
+  }
+  checkAnsweredNotifications();
+  setInterval(checkAnsweredNotifications, 30000);
+
+  function renderMyQuestions(){
+    const list = getMyQuestions();
+    const host = document.getElementById('myqList');
+    if(!list.length){ host.innerHTML = '<div class="feed-empty">Belum pernah kirim pertanyaan dari device ini.</div>'; return; }
+    host.innerHTML = '<div class="feed-loading"><div class="spin"></div></div>';
+    fetchAnsweredAmong(list.map(item=>item.id)).then(answeredMap=>{
+      host.innerHTML = list.map(item=>{
+        const answered = !!answeredMap[item.id];
+        return `<div class="myq-item">
+          <div class="myq-q">${escapeHtml(item.question)}</div>
+          <span class="myq-status ${answered ? 'answered' : 'pending'}">${answered ? '✓ Dijawab' : '⏳ Menunggu dijawab'}</span>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  /* ===================== 23. PRESENCE COUNTER "X ORANG ONLINE" ===================== */
+  const sessionId = sessionStorage.getItem('sid') || (Math.random().toString(36).slice(2) + Date.now());
+  sessionStorage.setItem('sid', sessionId);
+  function heartbeat(){
+    db.collection('presence').doc(sessionId).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+  }
+  heartbeat();
+  setInterval(heartbeat, 20000);
+  window.addEventListener('beforeunload', ()=>{ db.collection('presence').doc(sessionId).delete().catch(()=>{}); });
+  db.collection('presence').onSnapshot(snap=>{
+    const now = Date.now();
+    let active = 0;
+    snap.forEach(doc=>{
+      const t = doc.data().lastSeen;
+      if(t && (now - t.toMillis()) < 40000) active++;
+    });
+    document.getElementById('presenceCount').textContent = Math.max(active,1);
+  }, ()=>{ document.getElementById('presenceCount').textContent = '1'; });
+
+  /* ===================== FEED JAWABAN (search, like, reply, share, kartu, trending, accordion, load more) ===================== */
+  let feedDocs = [], feedLastVisible = null, likedIds = JSON.parse(localStorage.getItem('likedIds')||'[]');
+
+  function feedCardHtml(id, d, idx){
+    const long = (d.answer||'').length > 130;
+    const trending = (d.likes||0) >= 3;
+    const liked = likedIds.includes(id);
+    return `
+      <div class="feed-card" data-id="${id}" style="animation-delay:${Math.min(idx*0.04,0.3)}s">
+        <div class="fmeta">
+          <span class="fname">${escapeHtml(d.askerName || 'Anonim')} bertanya${d.category ? ' · '+escapeHtml(d.category) : ''}</span>
+          ${trending ? '<span class="trending">🔥 Trending</span>' : ''}
+        </div>
+        <div class="fq">${d.mood ? d.mood+' ' : ''}${escapeHtml(d.question)}</div>
+        <div class="fa ${long ? 'collapsed' : ''}" data-expand="0">
+          <b>${escapeHtml(TIKTOK_HANDLE)}:</b> ${escapeHtml(d.answer)}
+          ${long ? '<span class="more">Baca selengkapnya ▾</span>' : ''}
+        </div>
+        ${d.rating ? `<div class="frating">${'★'.repeat(d.rating)}${'☆'.repeat(5-d.rating)}</div>` : ''}
+        <div class="factions">
+          <button class="like-btn ${liked?'liked':''}" data-id="${id}">❤ <span class="likecount">${d.likes||0}</span></button>
+          <button class="reply-toggle" data-id="${id}">💬 Balas</button>
+          <button class="share-btn" data-id="${id}">↗ Share</button>
+          <button class="card-btn" data-id="${id}">🎴 Kartu</button>
+        </div>
+        <div class="reply-box" id="replybox-${id}">
+          <textarea placeholder="Tulis balasan..." id="replytext-${id}"></textarea>
+          <button class="btn btn-ghost" data-send-reply="${id}">Kirim Balasan</button>
+          <div class="reply-list" id="replylist-${id}"></div>
+        </div>
+      </div>`;
+  }
+
+  function renderFeedList(){
+    const q = document.getElementById('feedSearch').value.trim().toLowerCase();
+    const filtered = q ? feedDocs.filter(x => (x.d.question+x.d.answer+(x.d.askerName||'')).toLowerCase().includes(q)) : feedDocs;
+    const list = document.getElementById('feedList');
+    if(!filtered.length){ list.innerHTML = '<div class="feed-empty">Belum ada jawaban yang cocok.<br>Coba kata kunci lain, atau jadi yang pertama nanya! 👀</div>'; return; }
+    list.innerHTML = filtered.map((x,i)=> feedCardHtml(x.id, x.d, i)).join('');
+  }
+
+  function loadFeed(){
+    document.getElementById('feedList').innerHTML = '<div class="feed-loading"><div class="spin"></div><br>Memuat jawaban...</div>';
+    feedDocs = []; feedLastVisible = null;
+    fetchFeedPage();
+  }
+  function fetchFeedPage(){
+    let query = db.collection('questions').where('status','==','answered').orderBy('answeredAt','desc').limit(10);
+    if(feedLastVisible) query = query.startAfter(feedLastVisible);
+    query.get().then(snap=>{
+      if(!snap.empty) feedLastVisible = snap.docs[snap.docs.length-1];
+      snap.forEach(doc=> feedDocs.push({id: doc.id, d: doc.data()}));
+      renderFeedList();
+      document.getElementById('btnLoadMoreFeed').style.display = snap.size < 10 ? 'none' : 'block';
+    }).catch(err=>{
+      console.error(err);
+      document.getElementById('feedList').innerHTML = '<div class="feed-empty">Gagal memuat jawaban. Cek koneksi / index Firestore.</div>';
+    });
+  }
+  document.getElementById('btnLoadMoreFeed').addEventListener('click', fetchFeedPage);
+  document.getElementById('feedSearch').addEventListener('input', renderFeedList);
+
+  document.getElementById('feedList').addEventListener('click', (e)=>{
+    const likeBtn = e.target.closest('.like-btn');
+    if(likeBtn){
+      const id = likeBtn.dataset.id;
+      if(likedIds.includes(id)) return;
+      likedIds.push(id); localStorage.setItem('likedIds', JSON.stringify(likedIds));
+      likeBtn.classList.add('liked');
+      const countEl = likeBtn.querySelector('.likecount');
+      countEl.textContent = parseInt(countEl.textContent||'0') + 1;
+      db.collection('questions').doc(id).update({ likes: firebase.firestore.FieldValue.increment(1) }).catch(()=>{});
+      return;
+    }
+    const fa = e.target.closest('.fa.collapsed');
+    if(fa){ fa.classList.toggle('collapsed'); return; }
+    const replyToggle = e.target.closest('.reply-toggle');
+    if(replyToggle){
+      const box = document.getElementById('replybox-'+replyToggle.dataset.id);
+      box.classList.toggle('open');
+      if(box.classList.contains('open')) loadReplies(replyToggle.dataset.id);
+      return;
+    }
+    const sendReply = e.target.closest('[data-send-reply]');
+    if(sendReply){
+      const id = sendReply.dataset.sendReply;
+      const text = document.getElementById('replytext-'+id).value.trim();
+      if(!text) return;
+      if(containsBadWord(text)){ showToast('Balasan mengandung kata kurang pantas.'); return; }
+      db.collection('questions').doc(id).collection('replies').add({
+        text, name: localStorage.getItem('savedName') || 'Anonim',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(()=>{
+        document.getElementById('replytext-'+id).value='';
+        loadReplies(id);
+      });
+      return;
+    }
+    const shareBtn = e.target.closest('.share-btn');
+    if(shareBtn){
+      const card = feedDocs.find(x=>x.id===shareBtn.dataset.id);
+      if(!card) return;
+      const text = encodeURIComponent(`Q: ${card.d.question}\nA: ${card.d.answer}\n— ${TIKTOK_HANDLE}`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+      return;
+    }
+    const cardBtn = e.target.closest('.card-btn');
+    if(cardBtn){
+      const card = feedDocs.find(x=>x.id===cardBtn.dataset.id);
+      if(card) generateMiniCard(card.d);
+      return;
+    }
+  });
+
+  function loadReplies(id){
+    const host = document.getElementById('replylist-'+id);
+    host.innerHTML = '<div class="mini-spin"></div>';
+    db.collection('questions').doc(id).collection('replies').orderBy('createdAt','asc').limit(20).get().then(snap=>{
+      if(snap.empty){ host.innerHTML = ''; return; }
+      host.innerHTML = snap.docs.map(d=>{
+        const r = d.data();
+        return `<div class="reply-item"><b>${escapeHtml(r.name)}:</b> ${escapeHtml(r.text)}</div>`;
+      }).join('');
+    }).catch(()=>{ host.innerHTML = ''; });
+  }
+
+  /* ===================== 16. GENERATE KARTU GAMBAR MINI ===================== */
+  function generateMiniCard(d){
+    const canvas = document.createElement('canvas');
+    canvas.width = 900; canvas.height = 550;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#03030a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    grad.addColorStop(0,'rgba(34,211,238,0.12)'); grad.addColorStop(1,'rgba(245,196,81,0.10)');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#22d3ee'; ctx.font = '600 26px sans-serif'; ctx.fillText(TIKTOK_HANDLE, 50, 60);
+    ctx.fillStyle = '#e6e8ec'; ctx.font = '500 30px sans-serif';
+    wrapText(ctx, 'Q: '+d.question, 50, 140, 800, 40);
+    ctx.fillStyle = '#f5c451'; ctx.font = '500 28px sans-serif';
+    wrapText(ctx, 'A: '+d.answer, 50, 320, 800, 38);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '400 18px monospace';
+    ctx.fillText('dibuat dengan rapidev.my.id', 50, 520);
+    const link = document.createElement('a');
+    link.download = 'tanya-incuema-'+Date.now()+'.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+    const words = text.split(' '); let line = '';
+    for(let n=0;n<words.length;n++){
+      const testLine = line + words[n] + ' ';
+      if(ctx.measureText(testLine).width > maxWidth && n > 0){
+        ctx.fillText(line, x, y); line = words[n] + ' '; y += lineHeight;
+      } else { line = testLine; }
+    }
+    ctx.fillText(line, x, y);
+  }
+
+  /* ===================== 4. LEADERBOARD 7 HARI ===================== */
+  function loadLeaderboard(){
+    const host = document.getElementById('leaderboardList');
+    host.innerHTML = '<div class="feed-loading"><div class="spin"></div><br>Menghitung...</div>';
+    const weekAgo = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - 7*24*60*60*1000));
+    db.collection('questions').where('createdAt','>=', weekAgo).get().then(snap=>{
+      const counts = {};
+      snap.forEach(doc=>{
+        const name = doc.data().askerName || 'Anonim';
+        counts[name] = (counts[name]||0) + 1;
+      });
+      const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      if(!sorted.length){ host.innerHTML = '<div class="feed-empty">Belum ada data minggu ini.</div>'; return; }
+      host.innerHTML = sorted.map(([name,count],i)=>`
+        <div class="lb-item">
+          <div class="lb-rank">#${i+1}</div>
+          <div class="lb-name">${escapeHtml(name)}</div>
+          <div class="lb-count">${count} pertanyaan</div>
+        </div>`).join('');
+    }).catch(err=>{
+      console.error(err);
+      host.innerHTML = '<div class="feed-empty">Gagal memuat leaderboard.</div>';
+    });
+  }
+
+  /* ===================== 3. POLLING HARIAN ===================== */
+  function todayPollId(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function loadPoll(){
+    const host = document.getElementById('pollBox');
+    host.innerHTML = '<div class="feed-loading"><div class="spin"></div><br>Memuat polling...</div>';
+    const pollId = todayPollId();
+    db.collection('polls').doc(pollId).get().then(doc=>{
+      if(!doc.exists){ host.innerHTML = '<div class="feed-empty">Belum ada polling hari ini.<br>Pantengin lagi nanti ya 👀</div>'; return; }
+      const poll = doc.data();
+      const totalVotes = (poll.options||[]).reduce((s,o)=>s+(o.votes||0),0) || 1;
+      const votedKey = 'voted_'+pollId;
+      const alreadyVoted = localStorage.getItem(votedKey);
+      host.innerHTML = `<p class="desc" style="margin-bottom:14px;">${escapeHtml(poll.question)}</p>` +
+        poll.options.map((o,i)=>{
+          const pct = Math.round((o.votes||0)/totalVotes*100);
+          return `<div class="poll-opt" data-i="${i}">
+            <div class="poll-bar-wrap"><div class="poll-bar-fill" style="width:${alreadyVoted?pct:0}%"></div>
+              <div class="poll-bar-label"><span>${escapeHtml(o.label)}</span>${alreadyVoted?`<span class="poll-bar-pct">${pct}%</span>`:''}</div>
+            </div>
+          </div>`;
+        }).join('');
+      if(!alreadyVoted){
+        host.querySelectorAll('.poll-opt').forEach(el=>{
+          el.addEventListener('click', ()=>{
+            const i = parseInt(el.dataset.i);
+            const ref = db.collection('polls').doc(pollId);
+            db.runTransaction(async tx=>{
+              const snap = await tx.get(ref);
+              const data = snap.data();
+              const opts = data.options;
+              opts[i].votes = (opts[i].votes||0) + 1;
+              tx.update(ref, { options: opts });
+            }).then(()=>{ localStorage.setItem(votedKey,'1'); showToast('✅ Vote tersimpan!'); loadPoll(); })
+              .catch(()=> showToast('Gagal vote, coba lagi.'));
+          });
+        });
+      }
+    }).catch(err=>{
+      console.error(err);
+      host.innerHTML = '<div class="feed-empty">Gagal memuat polling.</div>';
+    });
+  }
+
+  renderBadge();
+  document.getElementById('referralLink').textContent = buildReferralLink();
+
+  /* ===================== BACKGROUND STARS ===================== */
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const particles = Array.from({length:80}, ()=>({
+    x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+    r:Math.random()*1.4+0.3, s:Math.random()*0.3+0.05, a:Math.random()
+  }));
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.y += p.s; if(p.y>innerHeight){p.y=0;p.x=Math.random()*innerWidth;}
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(34,211,238,${0.15+Math.abs(Math.sin(p.a+p.y*0.01))*0.5})`;
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>
